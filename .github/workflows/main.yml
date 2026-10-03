@@ -1,0 +1,33 @@
+name: Zbuduj aplikacje
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Rozpakuj projekt
+        run: unzip -q DowodSprzedazy.zip -d praca
+      - name: Zbuduj APK
+        working-directory: praca/DowodSprzedazy
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+      - name: Opublikuj w Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp praca/DowodSprzedazy/app/build/outputs/apk/debug/app-debug.apk dowod-sprzedazy.apk
+          gh release delete najnowsza --yes --cleanup-tag || true
+          gh release create najnowsza dowod-sprzedazy.apk --title "Dowod sprzedazy - najnowsza wersja" --notes "Pobierz dowod-sprzedazy.apk i zainstaluj."
