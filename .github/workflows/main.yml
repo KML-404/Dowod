@@ -19,6 +19,8 @@ jobs:
           java-version: 17
       - name: Rozpakuj projekt
         run: unzip -q DowodSprzedazy.zip -d praca
+      - name: Poprawka
+        run: sed -i 's/var sub = price$/var sub: java.math.BigDecimal = price/' praca/DowodSprzedazy/app/src/main/java/pl/dowod/sprzedazy/MainActivity.kt
       - name: Zbuduj APK
         working-directory: praca/DowodSprzedazy
         run: |
